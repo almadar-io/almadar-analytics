@@ -11,4 +11,6 @@ export interface AnalyticsConfig {
   includeQuery?: boolean;
   /** Derive the path from `location.hash` (HashRouter). Default `false`. */
   hashRouting?: boolean;
+  /** Send events when running on localhost/127.0.0.1/*.local. Default `false`. */
+  trackLocalhost?: boolean;
 }

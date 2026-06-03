@@ -16,6 +16,20 @@ let historyPatched = false;
 const isBrowser = (): boolean =>
   typeof window !== 'undefined' && typeof navigator !== 'undefined';
 
+function isLocalhost(): boolean {
+  const h = window.location.hostname;
+  return (
+    h === 'localhost' ||
+    h === '127.0.0.1' ||
+    h === '0.0.0.0' ||
+    h === '::1' ||
+    h === '[::1]' ||
+    h === '' ||
+    h.endsWith('.local') ||
+    h.endsWith('.localhost')
+  );
+}
+
 function domain(): string {
   return cfg?.domain || window.location.hostname;
 }
@@ -95,9 +109,15 @@ export function init(options: AnalyticsConfig): void {
     includeQuery: false,
     hashRouting: false,
     domain: '',
+    trackLocalhost: false,
     ...options,
   };
   if (!isBrowser()) return;
+  if (!cfg.trackLocalhost && isLocalhost()) {
+    // Don't send dev/local traffic to production analytics.
+    cfg = null;
+    return;
+  }
   if (cfg.autoPageviews) enableAutoPageviews();
   pageview();
 }
