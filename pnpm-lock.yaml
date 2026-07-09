@@ -17,7 +17,7 @@ overrides:
   '@types/three': 0.160.0
   '@almadar/std': ^16.103.2
   '@almadar/ui': ^5.93.0
-  '@almadar/core': ^10.24.0
+  '@almadar/core': ^10.25.0
 
 importers:
 
