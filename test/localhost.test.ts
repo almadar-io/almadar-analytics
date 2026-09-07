@@ -15,13 +15,15 @@ class FakeBlob {
 
 const location = { pathname: '/', search: '', hash: '', hostname: 'localhost' };
 
-const g = globalThis as unknown as Record<string, unknown>;
-g.window = {
-  location,
-  history: { pushState() {}, replaceState() {} },
-  screen: { width: 1280 },
-  addEventListener() {},
-};
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: {
+    location,
+    history: { pushState() {}, replaceState() {} },
+    screen: { width: 1280 },
+    addEventListener() {},
+  },
+});
 Object.defineProperty(globalThis, 'navigator', {
   configurable: true,
   value: {
@@ -31,8 +33,8 @@ Object.defineProperty(globalThis, 'navigator', {
     },
   },
 });
-g.document = { referrer: '' };
-g.Blob = FakeBlob;
+Object.defineProperty(globalThis, 'document', { configurable: true, value: { referrer: '' } });
+Object.defineProperty(globalThis, 'Blob', { configurable: true, value: FakeBlob });
 
 const { init, track } = await import('../src/core');
 

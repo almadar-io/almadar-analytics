@@ -31,15 +31,17 @@ const history = {
   },
 };
 
-const g = globalThis as unknown as Record<string, unknown>;
-g.window = {
-  location,
-  history,
-  screen: { width: 1280 },
-  addEventListener(type: string, cb: () => void): void {
-    (listeners[type] ??= []).push(cb);
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: {
+    location,
+    history,
+    screen: { width: 1280 },
+    addEventListener(type: string, cb: () => void): void {
+      (listeners[type] ??= []).push(cb);
+    },
   },
-};
+});
 Object.defineProperty(globalThis, 'navigator', {
   configurable: true,
   value: {
@@ -49,8 +51,11 @@ Object.defineProperty(globalThis, 'navigator', {
     },
   },
 });
-g.document = { referrer: 'https://news.ycombinator.com/' };
-g.Blob = FakeBlob;
+Object.defineProperty(globalThis, 'document', {
+  configurable: true,
+  value: { referrer: 'https://news.ycombinator.com/' },
+});
+Object.defineProperty(globalThis, 'Blob', { configurable: true, value: FakeBlob });
 
 const { init, track } = await import('../src/core');
 
