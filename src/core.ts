@@ -1,13 +1,5 @@
+import { isLocalhostHost, sendBeacon, type BeaconPayload } from './beacon';
 import type { AnalyticsConfig, EventProps } from './types';
-
-interface BeaconPayload {
-  n: string;
-  d: string;
-  u: string;
-  r?: string;
-  w?: number;
-  p?: EventProps;
-}
 
 let cfg: Required<AnalyticsConfig> | null = null;
 let lastPath: string | null = null;
@@ -17,17 +9,7 @@ const isBrowser = (): boolean =>
   typeof window !== 'undefined' && typeof navigator !== 'undefined';
 
 function isLocalhost(): boolean {
-  const h = window.location.hostname;
-  return (
-    h === 'localhost' ||
-    h === '127.0.0.1' ||
-    h === '0.0.0.0' ||
-    h === '::1' ||
-    h === '[::1]' ||
-    h === '' ||
-    h.endsWith('.local') ||
-    h.endsWith('.localhost')
-  );
+  return isLocalhostHost(window.location.hostname);
 }
 
 function domain(): string {
@@ -44,24 +26,7 @@ function currentPath(): string {
 }
 
 function post(payload: BeaconPayload): void {
-  const url = cfg!.endpoint;
-  const body = JSON.stringify(payload);
-  // text/plain keeps this a CORS "simple" request: no preflight, adblocker-friendly when proxied.
-  try {
-    if (navigator.sendBeacon) {
-      const blob = new Blob([body], { type: 'text/plain' });
-      if (navigator.sendBeacon(url, blob)) return;
-    }
-  } catch {
-    // sendBeacon unavailable or threw — fall through to fetch.
-  }
-  void fetch(url, {
-    method: 'POST',
-    body,
-    keepalive: true,
-    mode: 'cors',
-    headers: { 'Content-Type': 'text/plain' },
-  }).catch(() => undefined);
+  void sendBeacon(cfg!.endpoint, payload);
 }
 
 export function pageview(path?: string): void {
